@@ -3,7 +3,7 @@ import Wheel from './components/wheel';
 
 function App() {
   return (
-    <div className="app">
+    <div>
       <Wheel />
     </div>
   );
