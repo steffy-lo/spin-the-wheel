@@ -1,164 +1,175 @@
+@import url("https://fonts.googleapis.com/css2?family=Girassol&display=swap");
+
 * {
-  margin: 0;
-  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
 }
 
 body {
-  background: #eaeaea;
-  color: #fff;
-  font-size: 18px;
-  font-family: 'Exo 2', sans-serif;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
 }
 
-a {
-  color: #34495e;
-}
+.deal-wheel {
+  --size: clamp(250px, 80vmin, 700px);
+  --lg-hs: 0 3%;
+  --lg-stop: 50%;
+  --lg: linear-gradient(hsl(var(--lg-hs) 0%) 0 var(--lg-stop),
+      hsl(var(--lg-hs) 20%) var(--lg-stop) 100%);
 
-#counter {
-  color: #36454f;
-  text-align: center;
-  margin-bottom: 2rem;
-}
-
-#winnings {
-  color: #36454f;
-  text-align: center;
-  margin-top: 2rem;
-}
-
-#wrapper {
-  margin: 100px auto 0;
   position: relative;
+  display: grid;
+  grid-gap: calc(var(--size) / 20);
+  align-items: center;
+  grid-template-areas:
+    "spinner"
+    "trigger";
+  font-family: "Girassol", sans-serif;
+  font-size: calc(var(--size) / 21);
+  line-height: 1;
+  text-transform: lowercase;
 }
 
-#txt {
-  color: #eaeaea;
+.deal-wheel>* {
+  grid-area: spinner;
 }
 
-#inner-wheel {
-  width: 100%;
-  height: 100%;
-  -webkit-transition: all 6s cubic-bezier(0, .99, .44, .99);
-  -moz-transition: all 6 cubic-bezier(0, .99, .44, .99);
-  -o-transition: all 6s cubic-bezier(0, .99, .44, .99);
-  -ms-transition: all 6s cubic-bezier(0, .99, .44, .99);
-  transition: all 6s cubic-bezier(0, .99, .44, .99);
+.deal-wheel .btn-spin {
+  grid-area: trigger;
+  justify-self: center;
 }
 
-#spin {
-  width: 68px;
-  height: 68px;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  margin: -34px 0 0 -34px;
+.spinner {
+  padding: 0;
+  position: relative;
+  display: grid;
+  align-items: center;
+  grid-template-areas: "spinner";
+  width: var(--size);
+  height: var(--size);
+  transform: rotate(calc(var(--rotate, 25) * 1deg));
   border-radius: 50%;
-  box-shadow: rgba(0, 0, 0, 0.1) 0px 3px 0px;
-  z-index: 1000;
-  background: #fff;
-  cursor: pointer;
-  font-family: 'Exo 2', sans-serif;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  -o-user-select: none;
+  box-shadow: inset 0 0 0 calc(var(--size) / 40) hsl(0deg 0% 0% / 0.06);
+}
+
+.spinner * {
+  grid-area: spinner;
+}
+
+.prize {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 0 calc(var(--size) / 6) 0 calc(var(--size) / 20);
+  width: 50%;
+  height: 50%;
+  transform-origin: center right;
+  transform: rotate(var(--rotate));
   user-select: none;
 }
 
-
-#spin:after {
-  content: "SPIN";
-  text-align: center;
-  line-height: 68px;
-  color: #CCC;
-  text-shadow: 0 2px 0 #fff, 0 -2px 0 rgba(0, 0, 0, 0.3);
+.cap {
+  --cap-size: calc(var(--size) / 4);
   position: relative;
-  z-index: 100000;
-  width: 68px;
-  height: 68px;
-  display: block;
+  justify-self: center;
+  width: var(--cap-size);
+  height: var(--cap-size);
 }
 
-#spin:before {
-  content: "";
-  position: absolute;
-  width: 0;
-  height: 0;
-  border-style: solid;
-  border-width: 0 20px 28px 20px;
-  border-color: transparent transparent #ffffff transparent;
-  top: -12px;
-  left: 14px;
+/* Hide select dropdown from SVG import file */
+.cap select {
+  display: none;
 }
 
-#inner-spin {
-  width: 54px;
-  height: 54px;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  margin: -27px 0 0 -27px;
-  border-radius: 50%;
-  z-index: 999;
-  box-shadow: rgba(255, 255, 255, 1) 0px -2px 0px inset, rgba(255, 255, 255, 1) 0px 2px 0px inset, rgba(0, 0, 0, 0.4) 0px 0px 5px;
-
-  background: rgb(255, 255, 255);
-  /* Old browsers */
-  background: -moz-radial-gradient(center, ellipse cover, rgba(255, 255, 255, 1) 0%, rgba(234, 234, 234, 1) 100%);
-  /* FF3.6+ */
-  background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%, rgba(255, 255, 255, 1)), color-stop(100%, rgba(234, 234, 234, 1)));
-  /* Chrome,Safari4+ */
-  background: -webkit-radial-gradient(center, ellipse cover, rgba(255, 255, 255, 1) 0%, rgba(234, 234, 234, 1) 100%);
-  /* Chrome10+,Safari5.1+ */
-  background: -o-radial-gradient(center, ellipse cover, rgba(255, 255, 255, 1) 0%, rgba(234, 234, 234, 1) 100%);
-  /* Opera 12+ */
-  background: -ms-radial-gradient(center, ellipse cover, rgba(255, 255, 255, 1) 0%, rgba(234, 234, 234, 1) 100%);
-  /* IE10+ */
-  background: radial-gradient(ellipse at center, rgba(255, 255, 255, 1) 0%, rgba(234, 234, 234, 1) 100%);
-  /* W3C */
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#eaeaea', GradientType=1);
-  /* IE6-9 fallback on horizontal gradient */
+.cap svg {
+  width: 100%;
 }
 
-#spin:active #inner-spin {
-  box-shadow: rgba(0, 0, 0, 0.4) 0px 0px 5px inset;
+.ticker {
+  position: relative;
+  left: calc(var(--size) / -15);
+  width: calc(var(--size) / 10);
+  height: calc(var(--size) / 20);
+  background: var(--lg);
+  z-index: 1;
+  clip-path: polygon(20% 0, 100% 50%, 20% 100%, 0% 50%);
+  transform-origin: center left;
 }
 
-#spin:active:after {
-  font-size: 15px;
+.btn-spin {
+  color: hsl(0deg 0% 100%);
+  background: var(--lg);
+  border: none;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  text-transform: inherit;
+  padding: 0.9rem 2rem 1rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: opacity 200ms ease-out;
 }
 
-/* ANIMATION */
-@-webkit-keyframes hh {
+.btn-spin:focus {
+  outline-offset: 2px;
+}
 
-  0%,
-  100% {
-    transform: rotate(0deg);
-    -webkit-transform: rotate(0deg);
-  }
+.btn-spin:active {
+  transform: translateY(1px);
+}
 
-  50% {
-    transform: rotate(7deg);
-    -webkit-transform: rotate(7deg);
+.btn-spin:disabled {
+  cursor: progress;
+  opacity: 0.25;
+}
+
+/* Spinning animation */
+.is-spinning .spinner {
+  transition: transform 8s cubic-bezier(0.1, -0.01, 0, 1);
+}
+
+.is-spinning .ticker {
+  animation: tick 700ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes tick {
+  40% {
+    transform: rotate(-12deg);
   }
 }
 
-@keyframes hh {
-
-  0%,
-  100% {
-    transform: rotate(0deg);
-    -webkit-transform: rotate(0deg);
-  }
-
-  50% {
-    transform: rotate(7deg);
-    -webkit-transform: rotate(7deg);
-  }
+/* Selected prize animation */
+.prize.selected .text {
+  color: white;
+  animation: selected 800ms ease;
 }
 
-.spin {
-  -webkit-animation: hh 0.1s;
-  /* Chrome, Safari, Opera */
-  animation: hh 0.1s;
+@keyframes selected {
+  25% {
+    transform: scale(1.25);
+    text-shadow: 1vmin 1vmin 0 hsla(0 0% 0% / 0.1);
+  }
+
+  40% {
+    transform: scale(0.92);
+    text-shadow: 0 0 0 hsla(0 0% 0% / 0.2);
+  }
+
+  60% {
+    transform: scale(1.02);
+    text-shadow: 0.5vmin 0.5vmin 0 hsla(0 0% 0% / 0.1);
+  }
+
+  75% {
+    transform: scale(0.98);
+  }
+
+  85% {
+    transform: scale(1);
+  }
 }
