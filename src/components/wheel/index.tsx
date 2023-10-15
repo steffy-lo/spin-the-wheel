@@ -49,6 +49,7 @@ const prizes: Array<{ text: string, color: string, probability: number }> = [
 
 function Wheel() {
 
+    let currentSlice = 0;
     const spinClass = "is-spinning";
     const selectedClass = "selected";
 
@@ -56,7 +57,6 @@ function Wheel() {
     const spinner = useRef<HTMLUListElement>(null);
     const trigger = useRef<HTMLButtonElement>(null);
     const ticker = useRef<HTMLDivElement>(null);
-    const [currentSlice, setCurrentSlice] = useState<number>(0);
     const [rotation, setRotation] = useState<number>(0);
     const [tickerAnim, setTickerAnim] = useState<number>(0);
     const [prizeNodes, setPrizeNodes] = useState<NodeListOf<Element>>();
@@ -90,6 +90,20 @@ function Wheel() {
         });
     }, []);
 
+    const getSelectedSliceIndex = (rotation: number) => {
+        let selectedIndex = prizes.length - 1;
+        let i = selectedIndex;
+        let cumulativeRotation = 0;
+        while (rotation > cumulativeRotation + 360 * prizes[i].probability / 100) {
+            cumulativeRotation += 360 * prizes[i].probability / 100
+            selectedIndex -= 1;
+            i--;
+            if (i === 0) break;
+
+        }
+        return selectedIndex;
+    }
+
     const runTickerAnimation = () => {
         if (spinner.current === null || ticker.current === null) return;
         const spinnerStyles = window.getComputedStyle(spinner.current)
@@ -101,7 +115,7 @@ function Wheel() {
         if (rad < 0) rad += (2 * Math.PI);
 
         const angle = Math.round(rad * (180 / Math.PI));
-        const slice = Math.floor(angle / (360 / prizes.length));
+        const slice = getSelectedSliceIndex(angle);
 
         if (currentSlice !== slice) {
             ticker.current.style.animation = "none";
@@ -109,36 +123,20 @@ function Wheel() {
                 if (ticker.current === null) return;
                 ticker.current.style.animation = ""
             }, 10);
-            setCurrentSlice(slice);
+            currentSlice = slice;
         }
 
         setTickerAnim(requestAnimationFrame(runTickerAnimation));
     };
 
     const handleOnDone = () => {
-        const getSelectedPrizeIndex = (rotation: number) => {
-            console.log(rotation);
-            let selectedIndex = prizes.length - 1;
-            let i = selectedIndex;
-            let cumulativeRotation = 0;
-            while (rotation > cumulativeRotation + 360 * prizes[i].probability / 100) {
-                cumulativeRotation += 360 * prizes[i].probability / 100
-                selectedIndex -= 1;
-                i--;
-                if (i === 0) break;
-
-            }
-            console.log(selectedIndex);
-            return selectedIndex;
-        }
-
         if (spinner.current === null || trigger.current === null || wheel.current === null) return;
         cancelAnimationFrame(tickerAnim);
         trigger.current.disabled = false;
         trigger.current.focus();
         const rotate = rotation % 360;
         setRotation(rotate);
-        const selectedIndex = getSelectedPrizeIndex(rotate);
+        const selectedIndex = getSelectedSliceIndex(rotate);
         prizeNodes?.[selectedIndex].classList.add(selectedClass);
         wheel.current.classList.remove(spinClass);
         spinner.current.style.setProperty("--rotate", rotate.toString());
