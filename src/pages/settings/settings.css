@@ -1,0 +1,11 @@
+.settings-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.create-prize-form {
+    width: 70vw;
+    margin-bottom: 5rem;
+}

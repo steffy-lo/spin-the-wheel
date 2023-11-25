@@ -1,8 +1,9 @@
 /** @jsxImportSource @emotion/react */
 import { useEffect, useState, useRef, useCallback } from "react";
-import './wheel.css';
-import { spinertia } from "./utils";
+import { AES, enc } from "crypto-js";
+import { getRiggedDegreeRotation, getSelectedSliceIndex, spinertia } from "./utils";
 import _ from "lodash";
+import './wheel.css';
 
 const prizes: Array<{ text: string, color: string, probability: number }> = [
     {
@@ -60,6 +61,7 @@ function Wheel() {
     const [rotation, setRotation] = useState<number>(0);
     const [tickerAnim, setTickerAnim] = useState<number>(0);
     const [prizeNodes, setPrizeNodes] = useState<NodeListOf<Element>>();
+    const [riggedPrizeIndex, setRiggedPrizeIndex] = useState<number>(0);
 
     const createPrizeNodes = useCallback(() => {
         if (spinner.current === null) return;
@@ -90,20 +92,6 @@ function Wheel() {
         });
     }, []);
 
-    const getSelectedSliceIndex = (rotation: number) => {
-        let selectedIndex = prizes.length - 1;
-        let i = selectedIndex;
-        let cumulativeRotation = 0;
-        while (rotation > cumulativeRotation + 360 * prizes[i].probability / 100) {
-            cumulativeRotation += 360 * prizes[i].probability / 100
-            selectedIndex -= 1;
-            i--;
-            if (i === 0) break;
-
-        }
-        return selectedIndex;
-    }
-
     const runTickerAnimation = () => {
         if (spinner.current === null || ticker.current === null) return;
         const spinnerStyles = window.getComputedStyle(spinner.current)
@@ -115,7 +103,7 @@ function Wheel() {
         if (rad < 0) rad += (2 * Math.PI);
 
         const angle = Math.round(rad * (180 / Math.PI));
-        const slice = getSelectedSliceIndex(angle);
+        const slice = getSelectedSliceIndex(prizes, angle);
 
         if (currentSlice !== slice) {
             ticker.current.style.animation = "none";
@@ -136,7 +124,7 @@ function Wheel() {
         trigger.current.focus();
         const rotate = rotation % 360;
         setRotation(rotate);
-        const selectedIndex = getSelectedSliceIndex(rotate);
+        const selectedIndex = getSelectedSliceIndex(prizes, rotate);
         prizeNodes?.[selectedIndex].classList.add(selectedClass);
         wheel.current.classList.remove(spinClass);
         spinner.current.style.setProperty("--rotate", rotate.toString());
@@ -149,7 +137,7 @@ function Wheel() {
             wheel.current === null ||
             prizeNodes === undefined) return;
         trigger.current.disabled = true;
-        const rotate = Math.floor(Math.random() * 360 + spinertia(2000, 5000));
+        const rotate = spinertia(10, 15) - getRiggedDegreeRotation(prizes, riggedPrizeIndex);
         setRotation(rotate);
         prizeNodes.forEach((prize) => prize.classList.remove(selectedClass));
         wheel.current.classList.add(spinClass);
@@ -163,6 +151,12 @@ function Wheel() {
         if (wheel.current === null || spinner.current === null) return;
         createPrizeNodes();
         setPrizeNodes(wheel.current.querySelectorAll(".prize"));
+
+        const encryptedFlowQuery = AES.encrypt("prizeIndex=1", "FLOW_CONTEXT");
+        var decryptedFlowQuery = AES.decrypt(encryptedFlowQuery, "FLOW_CONTEXT");
+        var originalQuery = decryptedFlowQuery.toString(enc.Utf8);
+        console.log(encryptedFlowQuery, originalQuery)
+
     }, [wheel, spinner, createPrizeNodes])
 
     return (

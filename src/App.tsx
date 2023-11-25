@@ -1,11 +1,15 @@
 import React from 'react';
-import Wheel from './components/wheel';
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Wheel, Settings } from './pages';
 
 function App() {
   return (
-    <div>
-      <Wheel />
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Wheel />} />
+        <Route path="/settings" element={<Settings />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
