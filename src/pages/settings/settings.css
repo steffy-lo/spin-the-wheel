@@ -9,3 +9,18 @@
     width: 70vw;
     margin-bottom: 5rem;
 }
+
+.prize-table {
+    width: 70vw;
+    margin-bottom: 5rem !important;
+}
+
+.prize-table-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.additional-settings {
+    width: 70vw;
+    margin-bottom: 5rem;
+}

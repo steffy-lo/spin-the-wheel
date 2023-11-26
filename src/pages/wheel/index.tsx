@@ -1,52 +1,10 @@
 /** @jsxImportSource @emotion/react */
 import { useEffect, useState, useRef, useCallback } from "react";
 import { AES, enc } from "crypto-js";
-import { getRiggedDegreeRotation, getSelectedSliceIndex, spinertia } from "./utils";
+import { getEnforceDegreeRotation, getSelectedSliceIndex, spinertia } from "./utils";
 import _ from "lodash";
 import './wheel.css';
-
-const prizes: Array<{ text: string, color: string, probability: number }> = [
-    {
-        text: "10% Off Sticker Price",
-        color: "hsl(197 30% 43%)",
-        probability: 11.5 // 41.4 deg
-    },
-    {
-        text: "Free Car",
-        color: "hsl(173 58% 39%)",
-        probability: 4.5 // 16.2 deg
-    },
-    {
-        text: "No Money Down",
-        color: "hsl(43 74% 66%)",
-        probability: 10 // 36 deg
-    },
-    {
-        text: "Half Off Sticker Price",
-        color: "hsl(27 87% 67%)",
-        probability: 5 // 18 deg
-    },
-    {
-        text: "Free DIY Carwash",
-        color: "hsl(12 76% 61%)",
-        probability: 10 // 36 deg
-    },
-    {
-        text: "Eternal Damnation",
-        color: "hsl(350 60% 52%)",
-        probability: 20 // 72 deg
-    },
-    {
-        text: "Used Travel Mug",
-        color: "hsl(91 43% 54%)",
-        probability: 20 // 72 deg
-    },
-    {
-        text: "One Solid Hug",
-        color: "hsl(140 36% 74%)",
-        probability: 20 // 72 deg
-    }
-];
+import { Prize } from "../interfaces";
 
 function Wheel() {
 
@@ -58,13 +16,14 @@ function Wheel() {
     const spinner = useRef<HTMLUListElement>(null);
     const trigger = useRef<HTMLButtonElement>(null);
     const ticker = useRef<HTMLDivElement>(null);
+    const [prizes, setPrizes] = useState<Array<Prize>>([]);
     const [rotation, setRotation] = useState<number>(0);
     const [tickerAnim, setTickerAnim] = useState<number>(0);
     const [prizeNodes, setPrizeNodes] = useState<NodeListOf<Element>>();
-    const [riggedPrizeIndex, setRiggedPrizeIndex] = useState<number>(0);
+    const [enforcePrizeIndex, setEnforcePrizeIndex] = useState<number>(0);
 
     const createPrizeNodes = useCallback(() => {
-        if (spinner.current === null) return;
+        if (spinner.current === null || prizes.length === 0) return;
         spinner.current.setAttribute(
             "style",
             `background: conic-gradient(
@@ -90,7 +49,7 @@ function Wheel() {
                 );
             }
         });
-    }, []);
+    }, [prizes]);
 
     const runTickerAnimation = () => {
         if (spinner.current === null || ticker.current === null) return;
@@ -137,7 +96,7 @@ function Wheel() {
             wheel.current === null ||
             prizeNodes === undefined) return;
         trigger.current.disabled = true;
-        const rotate = spinertia(10, 15) - getRiggedDegreeRotation(prizes, riggedPrizeIndex);
+        const rotate = spinertia(10, 15) - getEnforceDegreeRotation(prizes, enforcePrizeIndex);
         setRotation(rotate);
         prizeNodes.forEach((prize) => prize.classList.remove(selectedClass));
         wheel.current.classList.add(spinClass);
@@ -147,16 +106,23 @@ function Wheel() {
     }
 
     useEffect(() => {
+        // Decrpyt flow context query
+        let flowContextValue = window.location.search.split("flowContext=")[1]?.split("&")[0];
+        if (flowContextValue) {
+            const decryptedFlowQuery = AES.decrypt(flowContextValue, "FLOW_CONTEXT_QUERY");
+            const { prizes, additionalSettings: { enforceIndex } } = JSON.parse(decryptedFlowQuery.toString(enc.Utf8));
+            setPrizes(prizes);
+            if (enforceIndex) {
+                setEnforcePrizeIndex(enforceIndex);
+            }
+        }
+    }, [])
+
+    useEffect(() => {
         // Setup Wheel
         if (wheel.current === null || spinner.current === null) return;
         createPrizeNodes();
         setPrizeNodes(wheel.current.querySelectorAll(".prize"));
-
-        const encryptedFlowQuery = AES.encrypt("prizeIndex=1", "FLOW_CONTEXT");
-        var decryptedFlowQuery = AES.decrypt(encryptedFlowQuery, "FLOW_CONTEXT");
-        var originalQuery = decryptedFlowQuery.toString(enc.Utf8);
-        console.log(encryptedFlowQuery, originalQuery)
-
     }, [wheel, spinner, createPrizeNodes])
 
     return (

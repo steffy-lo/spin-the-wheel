@@ -21,16 +21,16 @@ const getSelectedSliceIndex = (prizes: Array<{ text: string, color: string, prob
     return selectedIndex;
 }
 
-const getRiggedDegreeRotation = (prizes: Array<{ text: string, color: string, probability: number }>, riggedSliceIndex: number) => {
-    // Get the cumulative probability up to slice before riggedSliceIndex and riggedSliceIndex
+const getEnforceDegreeRotation = (prizes: Array<{ text: string, color: string, probability: number }>, enforceIndex: number) => {
+    // Get the cumulative probability up to slice before enforceIndex and enforceIndex
     // The two numbers will be used to calculate the min/max degree the ticker can land
-    const min = _.sum(prizes.slice(0, riggedSliceIndex).map(prize => prize.probability));
-    const max = min + prizes[riggedSliceIndex].probability
+    const min = _.sum(prizes.slice(0, enforceIndex).map(prize => prize.probability));
+    const max = min + prizes[enforceIndex].probability
     return spinertia(min, max) / 100
 }
 
 export {
     spinertia,
     getSelectedSliceIndex,
-    getRiggedDegreeRotation
+    getEnforceDegreeRotation
 }
